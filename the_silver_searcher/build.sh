@@ -93,7 +93,9 @@ function doit() {
     # Copy ag to output
     if [ -d /output ]
     then
-        cp /build/the_silver_searcher/ag /output/
+        OUT_DIR=/output/`uname | tr 'A-Z' 'a-z'`/`uname -m`
+        mkdir -p $OUT_DIR
+        cp /build/the_silver_searcher/ag $OUT_DIR/
         echo "** Finished **"
     else
         echo "** /output does not exist **"
