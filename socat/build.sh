@@ -90,7 +90,8 @@ EOF
     CC='/usr/local/musl/bin/musl-gcc -static' ./Configure no-shared linux-x86_64
 
     # Build
-    make -j4
+    make
+    echo "** Finished building OpenSSL"
 }
 
 function build_socat() {
