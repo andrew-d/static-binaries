@@ -9,6 +9,7 @@ them.  I generally just create these as I need them.
 - [socat](http://www.dest-unreach.org/socat/)
 - [ag / the_silver_searcher](https://github.com/ggreer/the_silver_searcher)
 - [nmap](http://nmap.org/)
+- [p0f v3](http://lcamtuf.coredump.cx/p0f3/)
 
 ## Building
 
