@@ -8,9 +8,16 @@ them.  I generally just create these as I need them.
 
 - [socat](http://www.dest-unreach.org/socat/)
 - [ag / the_silver_searcher](https://github.com/ggreer/the_silver_searcher)
+- [nmap](http://nmap.org/)
 
 ## Notes:
 
+### nmap
+
+- In order to do script scans, Nmap must know where the various Lua files live.
+  You can do this by setting the `NMAPDIR` environment variable:
+    `NMAPDIR=/usr/share/nmap nmap -vvv -A www.target.com`
+
 - The `nmap_centos5` binary isn't statically-linked; rather, it's built on
   CentOS5, so it "should" run on just about every modern version of Linux.
-  Getting a proper statically-linked version of nmap is surprisingly tricky.
+  Use this if something in the static binary doesn't work properly.
