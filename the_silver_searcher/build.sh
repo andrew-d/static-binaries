@@ -6,6 +6,7 @@ set -x
 
 
 MUSL_VERSION=1.1.6
+ZLIB_VERSION=1.2.8
 PCRE_VERSION=8.36
 LZMA_VERSION=5.0.8
 
@@ -22,6 +23,20 @@ function build_musl() {
     ./configure
     make -j4
     make install
+}
+
+function build_zlib() {
+    cd /build
+
+    # Download
+    curl -LO http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz
+    tar zxvf zlib-${ZLIB_VERSION}.tar.gz
+    cd zlib-${ZLIB_VERSION}
+
+    # Build
+    CC='/usr/local/musl/bin/musl-gcc -static' CFLAGS='-fPIC' ./configure \
+        --static
+    make -j4
 }
 
 function build_pcre() {
@@ -71,11 +86,14 @@ function build_ag() {
     # Note: since the system won't have PCRE/liblzma installed, we just have pkg-config return true
     CC='/usr/local/musl/bin/musl-gcc -static'                               \
         CFLAGS='-fPIC'                                                      \
-        CPPFLAGS="-I/build/pcre-${PCRE_VERSION}"                            \
+        CPPFLAGS="-I/build/pcre-${PCRE_VERSION} -I/build/xz-${LZMA_VERSION}/src/liblzma/api -I/build/zlib-${ZLIB_VERSION}" \
+        LDFLAGS="-L/build/zlib-${ZLIB_VERSION} -lz"    \
         PCRE_LIBS="-L/build/pcre-${PCRE_VERSION}/.libs -lpcre"              \
         PCRE_CFLAGS="-I/build/pcre-${PCRE_VERSION}"                         \
         LZMA_LIBS="-L/build/xz-${LZMA_VERSION}/src/liblzma/.libs -llzma"    \
-        LZMA_CFLAGS="-I/build/xz-${LZMA_VERSION}"                           \
+        LZMA_CFLAGS="-I/build/xz-${LZMA_VERSION}/src/liblzma/api"           \
+        ZLIB_LIBS="-L/build/zlib-${ZLIB_VERSION} -lz"    \
+        ZLIB_CFLAGS="-I/build/zlib-${ZLIB_VERSION}"           \
         ./configure PKG_CONFIG="/bin/true"
 
     # Build
@@ -86,6 +104,7 @@ function build_ag() {
 function doit() {
     # Kick off all builds
     build_musl
+    build_zlib
     build_pcre
     build_lzma
     build_ag
