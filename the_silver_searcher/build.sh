@@ -9,6 +9,7 @@ MUSL_VERSION=1.1.6
 ZLIB_VERSION=1.2.8
 PCRE_VERSION=8.36
 LZMA_VERSION=5.0.8
+AG_VERSION=master
 
 
 function build_musl() {
@@ -73,7 +74,7 @@ function build_ag() {
     cd /build
 
     # Clone
-    git clone https://github.com/ggreer/the_silver_searcher.git
+    git clone -b ${AG_VERSION} https://github.com/ggreer/the_silver_searcher.git
     cd the_silver_searcher
 
     # Autoconf
