@@ -11,6 +11,7 @@ them.  I generally just create these as I need them.
 - [nmap](http://nmap.org/)
 - [p0f v3](http://lcamtuf.coredump.cx/p0f3/)
 - [binutils](https://www.gnu.org/software/binutils/)
+- [yasm](http://yasm.tortall.net/)
 
 ## Building
 
