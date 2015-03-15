@@ -72,23 +72,7 @@ function build_openssl() {
     cd openssl-${OPENSSL_VERSION}
 
     # Patch to make OpenSSL support MUSL
-    patch -p1 <<EOF
---- a/crypto/ui/ui_openssl.c
-+++ b/crypto/ui/ui_openssl.c
-@@ -190,9 +190,9 @@
- # undef  SGTTY
- #endif
- 
--#if defined(linux) && !defined(TERMIO)
--# undef  TERMIOS
--# define TERMIO
-+#if defined(linux)
-+# define TERMIOS
-+# undef  TERMIO
- # undef  SGTTY
- #endif
- 
-EOF
+    patch -p1 < /build/openssl-musl-support.patch
 
     # Configure
     CC='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-gcc -static' ./Configure no-shared linux-x86_64
@@ -107,10 +91,10 @@ function build_python() {
 
     # Set up modules
     cp Modules/Setup.dist Modules/Setup
-    MODULES="_bisect _csv _datetime _elementtree _heapq _md5 _pickle _posixsubprocess _random _sha1 _sha256 _sha512 _socket _ssl _struct _weakref array binascii cmath fcntl grp math mmap parser readline resource select spwd syslog termios time unicodedata zlib"
+    MODULES="_bisect _csv _datetime _elementtree _heapq _md5 _pickle _posixsubprocess _random _sha1 _sha256 _sha512 _socket _struct _weakref array binascii cmath fcntl grp math mmap parser readline resource select spwd syslog termios time unicodedata zlib"
     for mod in $MODULES;
     do
-        sed -i -e "s/^\\#${mod}/${mod}/" Modules/Setup
+        sed -i -e "s/^#${mod}/${mod}/" Modules/Setup
     done
 
     echo '_json _json.c' >> Modules/Setup
@@ -119,6 +103,10 @@ function build_python() {
     # Enable static linking
     sed -i '1i\
 *static*' Modules/Setup
+
+    # Enable OpenSSL support
+    patch --ignore-whitespace -p1 < /build/cpython-enable-openssl.patch
+    sed -i -e "s|^SSL=/build/openssl-TKTK|^SSL=/build/openssl-${OPENSSL_VERSION}|" Modules/Setup
 
     # Configure
     CC='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-gcc -static -fPIC' \
