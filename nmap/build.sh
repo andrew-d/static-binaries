@@ -6,7 +6,7 @@ set -x
 
 
 NMAP_VERSION=6.47
-OPENSSL_VERSION=1.0.2
+OPENSSL_VERSION=1.0.2a
 
 
 function build_openssl() {
@@ -16,25 +16,6 @@ function build_openssl() {
     curl -LO https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz
     tar zxvf openssl-${OPENSSL_VERSION}.tar.gz
     cd openssl-${OPENSSL_VERSION}
-
-    # Patch to make OpenSSL support MUSL
-    patch -p1 <<EOF
---- a/crypto/ui/ui_openssl.c
-+++ b/crypto/ui/ui_openssl.c
-@@ -190,9 +190,9 @@
- # undef  SGTTY
- #endif
- 
--#if defined(linux) && !defined(TERMIO)
--# undef  TERMIOS
--# define TERMIO
-+#if defined(linux)
-+# define TERMIOS
-+# undef  TERMIO
- # undef  SGTTY
- #endif
- 
-EOF
 
     # Configure
     CC='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-gcc -static' ./Configure no-shared linux-x86_64
