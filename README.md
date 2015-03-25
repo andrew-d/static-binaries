@@ -35,3 +35,11 @@ docker run -v `pwd`/../binaries:/output static-binaries-FOO
 - The `nmap_centos5` binary isn't statically-linked; rather, it's built on
   CentOS5, so it "should" run on just about every modern version of Linux.
   Use this if something in the static binary doesn't work properly.
+
+- On Windows, the nmap binary will probably not work without WinPcap.  It also
+  appears to have a random crashing problem with regular TCP scans - I'm not
+  quite sure what's up with that yet.
+
+### nping
+
+- On Windows, nping has the same issues as nmap (see above).
