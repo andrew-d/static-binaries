@@ -12,6 +12,7 @@ them.  I generally just create these as I need them.
 - [p0f v3](http://lcamtuf.coredump.cx/p0f3/)
 - [binutils](https://www.gnu.org/software/binutils/)
 - [yasm](http://yasm.tortall.net/)
+- [python](https://www.python.org)
 
 ## Building
 
@@ -43,3 +44,11 @@ docker run -v `pwd`/../binaries:/output static-binaries-FOO
 ### nping
 
 - On Windows, nping has the same issues as nmap (see above).
+
+### python
+
+- Getting a static build of Python that works is **HARD**.  Not everything in this
+  particular tool functions properly, and you have to run it with some strange options,
+  but it's usable.  In short, you need to run it like so:  
+    `PYTHONPATH=/path/to/python2.7.zip` python -sS
+
