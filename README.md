@@ -50,6 +50,6 @@ docker run -v `pwd`/../binaries:/output static-binaries-FOO
 - Getting a static build of Python that works is **HARD**.  Not everything in this
   particular tool functions properly, and you have to run it with some strange options,
   but it's usable.  In short, you need to run it like so:  
-    `PYTHONPATH=/path/to/python2.7.zip` python -sS
+    `PYTHONPATH=/path/to/python2.7.zip python -sS`
 
 - Note: sqlite isn't currently supported.  Adding this is an ongoing TODO of mine.
