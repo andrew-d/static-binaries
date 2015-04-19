@@ -52,3 +52,4 @@ docker run -v `pwd`/../binaries:/output static-binaries-FOO
   but it's usable.  In short, you need to run it like so:  
     `PYTHONPATH=/path/to/python2.7.zip` python -sS
 
+- Note: sqlite isn't currently supported.  Adding this is an ongoing TODO of mine.
