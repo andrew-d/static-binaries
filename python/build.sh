@@ -8,8 +8,8 @@ set -x
 ZLIB_VERSION=1.2.8
 TERMCAP_VERSION=1.3.1
 READLINE_VERSION=6.3
-OPENSSL_VERSION=1.0.2
-PYTHON_VERSION=v3.4.3
+OPENSSL_VERSION=1.0.2a
+PYTHON_VERSION=2.7.9
 
 
 function build_zlib() {
@@ -71,9 +71,6 @@ function build_openssl() {
     tar zxvf openssl-${OPENSSL_VERSION}.tar.gz
     cd openssl-${OPENSSL_VERSION}
 
-    # Patch to make OpenSSL support MUSL
-    patch -p1 < /build/openssl-musl-support.patch
-
     # Configure
     CC='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-gcc -static' ./Configure no-shared linux-x86_64
 
@@ -86,34 +83,42 @@ function build_python() {
     cd /build
 
     # Download
-    git clone --branch ${PYTHON_VERSION} https://github.com/akheron/cpython.git
-    cd cpython
+    curl -LO https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz
+    unxz Python-${PYTHON_VERSION}.tar.xz
+    tar -xvf Python-${PYTHON_VERSION}.tar
+    cd Python-${PYTHON_VERSION}
 
     # Set up modules
     cp Modules/Setup.dist Modules/Setup
-    MODULES="_bisect _csv _datetime _elementtree _heapq _md5 _pickle _posixsubprocess _random _sha1 _sha256 _sha512 _socket _struct _weakref array binascii cmath fcntl grp math mmap parser readline resource select spwd syslog termios time unicodedata zlib"
+    MODULES="_bisect _collections _csv _datetime _elementtree _functools _heapq _io _md5 _posixsubprocese _random _sha _sha256 _sha512 _socket _struct _weakref array binascii cmath cStringIO cPickle datetime fcntl future_builtins grp itertools math mmap operator parser readline resource select spwd strop syslog termios time unicodedata zlib"
     for mod in $MODULES;
     do
         sed -i -e "s/^#${mod}/${mod}/" Modules/Setup
     done
 
     echo '_json _json.c' >> Modules/Setup
-    echo '_multiprocessing _multiprocessing/multiprocessing.c _multiprocessing/semaphore.c' >> Modules/Setup
+    echo '_multiprocessing _multiprocessing/multiprocessing.c _multiprocessing/semaphore.c _multiprocessing/socket_connection.c' >> Modules/Setup
 
     # Enable static linking
     sed -i '1i\
 *static*' Modules/Setup
 
+    # Set dependency paths for zlib, readline, etc.
+    sed -i \
+        -e "s|^zlib zlibmodule.c|zlib zlibmodule.c -I/build/zlib-${ZLIB_VERSION} -L/build/zlib-${ZLIB_VERSION} -lz|" \
+        -e "s|^readline readline.c|readline readline.c -I/build/readline-${READLINE_VERSION} -L/build/readline-${READLINE_VERSION} -L/build/termcap-${TERMCAP_VERSION} -lreadline -ltermcap|" \
+        Modules/Setup
+
     # Enable OpenSSL support
     patch --ignore-whitespace -p1 < /build/cpython-enable-openssl.patch
-    sed -i -e "s|^SSL=/build/openssl-TKTK|^SSL=/build/openssl-${OPENSSL_VERSION}|" Modules/Setup
+    sed -i \
+        -e "s|^SSL=/build/openssl-TKTK|SSL=/build/openssl-${OPENSSL_VERSION}|" \
+        Modules/Setup
 
     # Configure
     CC='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-gcc -static -fPIC' \
         CXX='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-g++ -static -static-libstdc++ -fPIC' \
         LD=/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-ld \
-        CFLAGS="-I/build/readline-${READLINE_VERSION} -I/build/zlib-${ZLIB_VERSION} -I/build/openssl-${OPENSSL_VERSION}/include" \
-        LDFLAGS="-L/build/readline-${READLINE_VERSION} -L/build/termcap-${TERMCAP_VERSION} -lreadline -ltermcap -L/build/zlib-${ZLIB_VERSION} -L/build/openssl-${OPENSSL_VERSION}" \
         ./configure \
             --disable-shared
 

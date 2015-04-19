@@ -11,7 +11,7 @@
 +SSL=/build/openssl-TKTK
 +_ssl _ssl.c \
 +       -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \
-+       -L$(SSL)/lib -lssl -lcrypto
++       -L$(SSL) -lssl -lcrypto
  
  # The crypt module is now disabled by default because it breaks builds
  # on many systems (where -lcrypt is needed), e.g. Linux (I believe).
