@@ -6,13 +6,13 @@ them.  I generally just create these as I need them.
 
 ## Current List of Tools
 
-- [socat](http://www.dest-unreach.org/socat/)
 - [ag / the_silver_searcher](https://github.com/ggreer/the_silver_searcher)
+- [binutils](https://www.gnu.org/software/binutils/)
 - [nmap](http://nmap.org/)
 - [p0f v3](http://lcamtuf.coredump.cx/p0f3/)
-- [binutils](https://www.gnu.org/software/binutils/)
-- [yasm](http://yasm.tortall.net/)
 - [python](https://www.python.org)
+- [socat](http://www.dest-unreach.org/socat/)
+- [yasm](http://yasm.tortall.net/)
 
 ## Building
 
