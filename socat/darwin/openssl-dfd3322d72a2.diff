@@ -1,0 +1,37 @@
+diff --git a/crypto/x509/x509_vfy.c b/crypto/x509/x509_vfy.c
+index fb1c34a..f3e9c56 100644
+--- a/crypto/x509/x509_vfy.c
++++ b/crypto/x509/x509_vfy.c
+@@ -362,11 +362,13 @@ int X509_verify_cert(X509_STORE_CTX *ctx)
+         /*
+          * If it's not explicitly trusted then check if there is an alternative
+          * chain that could be used. We only do this if we haven't already
+-         * checked via TRUSTED_FIRST
++         * checked via TRUSTED_FIRST and the user hasn't switched off alternate
++         * chain checking
+          */
+         retry = 0;
+         if (i != X509_TRUST_TRUSTED
+-            && !(ctx->param->flags & X509_V_FLAG_TRUSTED_FIRST)) {
++            && !(ctx->param->flags & X509_V_FLAG_TRUSTED_FIRST)
++            && !(ctx->param->flags & X509_V_FLAG_NO_ALT_CHAINS)) {
+             while (j-- > 1) {
+                 xtmp2 = sk_X509_value(ctx->chain, j - 1);
+                 ok = ctx->get_issuer(&xtmp, ctx, xtmp2);
+diff --git a/crypto/x509/x509_vfy.h b/crypto/x509/x509_vfy.h
+index a6f0df5..bd8613c 100644
+--- a/crypto/x509/x509_vfy.h
++++ b/crypto/x509/x509_vfy.h
+@@ -432,6 +432,12 @@ void X509_STORE_CTX_set_depth(X509_STORE_CTX *ctx, int depth);
+ 
+ /* Allow partial chains if at least one certificate is in trusted store */
+ # define X509_V_FLAG_PARTIAL_CHAIN               0x80000
++/*
++ * If the initial chain is not trusted, do not attempt to build an alternative
++ * chain. Alternate chain checking was introduced in 1.0.2b. Setting this flag
++ * will force the behaviour to match that of previous versions.
++ */
++# define X509_V_FLAG_NO_ALT_CHAINS               0x100000
+ 
+ # define X509_VP_FLAG_DEFAULT                    0x1
+ # define X509_VP_FLAG_OVERWRITE                  0x2
