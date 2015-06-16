@@ -5,8 +5,8 @@ set -o pipefail
 set -x
 
 
-NMAP_VERSION=6.47
-OPENSSL_VERSION=1.0.2a
+NMAP_VERSION=6.49BETA1
+OPENSSL_VERSION=1.0.2c
 
 
 function build_openssl() {
@@ -27,6 +27,10 @@ function build_openssl() {
 
 function build_nmap() {
     cd /build
+
+    # Install Python
+    DEBIAN_FRONTEND=noninteractive apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get install -yy python
 
     # Download
     curl -LO http://nmap.org/dist/nmap-${NMAP_VERSION}.tar.bz2

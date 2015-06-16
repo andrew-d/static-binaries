@@ -12,6 +12,7 @@ function build_yasm() {
     cd /build
 
     # Install dependencies
+    DEBIAN_FRONTEND=noninteractive apt-get update
     DEBIAN_FRONTEND=noninteractive apt-get install -yy python
 
     # Download

@@ -18,7 +18,7 @@ RUN mkdir /build &&                                                 \
     git clone https://github.com/GregorR/musl-cross.git &&          \
     cd musl-cross &&                                                \
     echo 'GCC_BUILTIN_PREREQS=yes' >> config.sh &&                  \
-    sed -i -e 's/^MUSL_VERSION=.*$/MUSL_VERSION=1.1.8/' defs.sh &&  \
+    sed -i -e 's/^MUSL_VERSION=.*$/MUSL_VERSION=1.1.10/' defs.sh &&  \
     ./build.sh
 
 CMD /bin/bash

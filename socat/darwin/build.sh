@@ -8,7 +8,7 @@ set -x
 SOCAT_VERSION=1.7.3.0
 NCURSES_VERSION=5.9
 READLINE_VERSION=6.3
-OPENSSL_VERSION=1.0.2a
+OPENSSL_VERSION=1.0.2c
 
 OUR_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 ROOT_DIR=`mktemp -d /tmp/socat-build.XXXXXX` || exit 1
