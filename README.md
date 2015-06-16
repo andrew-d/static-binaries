@@ -57,4 +57,8 @@ docker run -v `pwd`/../binaries:/output static-binaries-FOO
 
 ### ht
 
-- On linux, needs ncurses installed, or you get an error message upon startup.
+- On Linux, the appropriate terminal information must be present.  The following commands
+  may help if you're getting the error `Error opening terminal: xterm` or similar:  
+    `export TERM_CH=$(echo $TERM | cut -c1)`  
+    `echo mkdir -p /usr/share/terminfo/$TERM_CH`  
+    `echo ln -s /lib/terminfo/$TERM_CH/$TERM /usr/share/terminfo/$TERM_CH/$TERM`  
