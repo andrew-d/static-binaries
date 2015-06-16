@@ -8,6 +8,7 @@ them.  I generally just create these as I need them.
 
 - [ag / the_silver_searcher](https://github.com/ggreer/the_silver_searcher)
 - [binutils](https://www.gnu.org/software/binutils/)
+- [ht](https://github.com/sebastianbiallas/ht)
 - [nmap](http://nmap.org/)
 - [p0f v3](http://lcamtuf.coredump.cx/p0f3/)
 - [python](https://www.python.org)
@@ -53,3 +54,7 @@ docker run -v `pwd`/../binaries:/output static-binaries-FOO
     `PYTHONPATH=/path/to/python2.7.zip python -sS`
 
 - Note: sqlite isn't currently supported.  Adding this is an ongoing TODO of mine.
+
+### ht
+
+- On linux, needs ncurses installed, or you get an error message upon startup.
