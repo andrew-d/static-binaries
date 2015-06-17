@@ -20,8 +20,8 @@ RUN mkdir /build &&                                                 \
     cd musl-cross &&                                                \
     echo 'ARCH=arm'                                 >> config.sh && \
     echo 'TRIPLE=arm-linux-musleabihf'              >> config.sh && \
-    echo 'GCC_BOOTSTRAP_CONFFLAGS="--with-arch=armv6-a --with-float=hard --with-fpu=vfpv2"' >> config.sh && \
-    echo 'GCC_CONFFLAGS="--with-arch=armv6-a --with-float=hard --with-fpu=vfpv2"' >> config.sh && \
+    echo 'GCC_BOOTSTRAP_CONFFLAGS="--with-arch=armv6 --with-float=hard --with-fpu=vfp"' >> config.sh && \
+    echo 'GCC_CONFFLAGS="--with-arch=armv6 --with-float=hard --with-fpu=vfp"' >> config.sh && \
     echo 'GCC_BUILTIN_PREREQS=yes'                  >> config.sh && \
     sed -i -e 's/^MUSL_VERSION=.*$/MUSL_VERSION=1.1.10/' defs.sh && \
     ./build.sh
