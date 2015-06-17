@@ -49,6 +49,8 @@ function build_binutils() {
         LD=arm-linux-musleabihf-ld \
         ../binutils-${BINUTILS_VERSION}/configure \
             --target= \
+            --build=i686 \
+            --host=arm-linux-musleabihf \
             --prefix=`pwd` \
             ${CONFIGURE_OPTS}
 
