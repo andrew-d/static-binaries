@@ -2,17 +2,23 @@
 
 This repo contains a bunch of statically-linked binaries of various tools,
 along with the Dockerfiles / other build scripts that can be used to build
-them.  I generally just create these as I need them.
+them.  I generally just create these as I need them - not all tools are
+available for every platform or architecture.  Please [file an issue][1]
+if you want a new tool or a tool on a new platform.
 
 ## Current List of Tools
 
 - [ag / the_silver_searcher](https://github.com/ggreer/the_silver_searcher)
 - [binutils](https://www.gnu.org/software/binutils/)
+- [file](http://www.darwinsys.com/file/)
 - [ht](https://github.com/sebastianbiallas/ht)
 - [nmap](http://nmap.org/)
 - [p0f v3](http://lcamtuf.coredump.cx/p0f3/)
+- [pv (Pipe Viewer)](https://www.ivarch.com/programs/pv.shtml)
 - [python](https://www.python.org)
 - [socat](http://www.dest-unreach.org/socat/)
+- [strace](http://linux.die.net/man/1/strace)
+- [tcpdump](http://www.tcpdump.org/)
 - [yasm](http://yasm.tortall.net/)
 
 ## Building
@@ -57,8 +63,14 @@ docker run -v `pwd`/../binaries:/output static-binaries-FOO
 
 ### ht
 
-- On Linux, the appropriate terminal information must be present.  The following commands
-  may help if you're getting the error `Error opening terminal: xterm` or similar:  
-    `export TERM_CH=$(echo $TERM | cut -c1)`  
-    `echo mkdir -p /usr/share/terminfo/$TERM_CH`  
-    `echo ln -s /lib/terminfo/$TERM_CH/$TERM /usr/share/terminfo/$TERM_CH/$TERM`  
+- On Linux, the appropriate terminal information must be present.  On some versions of
+  Linux (e.g. Debian Jessie), the information may be in a different place - you can use
+  the `TERMINFO` environment variable to specify the correct location:
+  `TERMINFO=/lib/terminfo ./ht`
+
+## file
+
+- You need to pass the correct magic database to file - one is provided named
+  `magic.mgc`.  Run `file` as such: `file -m /path/to/magic.mgc myfile.foo`.
+
+[1]: https://github.com/andrew-d/static-binaries/issues/new
