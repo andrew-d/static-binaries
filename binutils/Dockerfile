@@ -1,4 +1,4 @@
-FROM andrewd/static-binaries-musl-cross
+FROM andrewd/musl-cross
 MAINTAINER Andrew Dunham <andrew@du.nham.ca>
 
 # Add our build script

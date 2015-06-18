@@ -1,4 +1,4 @@
-FROM andrewd/static-binaries-musl-cross-arm
+FROM andrewd/musl-cross-arm
 MAINTAINER Andrew Dunham <andrew@du.nham.ca>
 
 # Add our build script
