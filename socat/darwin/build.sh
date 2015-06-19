@@ -10,12 +10,9 @@ NCURSES_VERSION=5.9
 READLINE_VERSION=6.3
 OPENSSL_VERSION=1.0.2c
 
-OUR_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-ROOT_DIR=`mktemp -d /tmp/socat-build.XXXXXX` || exit 1
-
 
 function build_ncurses() {
-    cd ${ROOT_DIR}
+    cd /build
 
     # Download
     curl -LO http://invisible-island.net/datafiles/release/ncurses.tar.gz
@@ -23,61 +20,76 @@ function build_ncurses() {
     cd ncurses-${NCURSES_VERSION}
 
     # Patch
-    for fname in ${OUR_DIR}/ncurses-*.diff;
+    for fname in /build/ncurses-*.diff;
     do
         patch -p1 < $fname
     done
 
     # Build
-    CC='clang -flto -O3 -mmacosx-version-min=10.6' ./configure \
+    AR=x86_64-apple-darwin12-ar \
+    CC='x86_64-apple-darwin12-clang -flto -O3 -mmacosx-version-min=10.6' \
+    CXX='x86_64-apple-darwin12-clang++ -flto -O3 -mmacosx-version-min=10.6' \
+    RANLIB=x86_64-apple-darwin12-ranlib \
+        ./configure \
         --disable-shared \
-        --enable-static
-    make -j4
+        --enable-static \
+        --build=i686 \
+        --host=x86_64-apple-darwin
+    OSXCROSS_NO_INCLUDE_PATH_WARNINGS=1 make -j4 libs
 }
 
 function build_readline() {
-    cd ${ROOT_DIR}
+    cd /build
 
     # Download
     curl -LO ftp://ftp.cwru.edu/pub/bash/readline-${READLINE_VERSION}.tar.gz
     tar xzvf readline-${READLINE_VERSION}.tar.gz
     cd readline-${READLINE_VERSION}
 
+    # Prevent building examples (which can't be done when cross-compiling)
+    sed -i -e 's|examples/Makefile||g' configure.ac
+    autoconf
+
     # Build
-    CC='clang -flto -O3 -mmacosx-version-min=10.6' ./configure \
+    AR=x86_64-apple-darwin12-ar \
+    CC='x86_64-apple-darwin12-clang -flto -O3 -mmacosx-version-min=10.6' \
+    CXX='x86_64-apple-darwin12-clang++ -flto -O3 -mmacosx-version-min=10.6' \
+    LD=x86_64-apple-darwin12-clang \
+    RANLIB=x86_64-apple-darwin12-ranlib \
+        ./configure \
         --disable-shared \
-        --enable-static
+        --enable-static \
+        --build=i686 \
+        --host=x86_64-apple-darwin
     make -j4
 
     # Note that socat looks for readline in <readline/readline.h>, so we need
     # that directory to exist.
-    ln -s ${ROOT_DIR}/readline-${READLINE_VERSION} ${ROOT_DIR}/readline
+    ln -s /build/readline-${READLINE_VERSION} /build/readline
 }
 
 function build_openssl() {
-    cd ${ROOT_DIR}
+    cd /build
 
     # Download
     curl -LO https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz
     tar zxvf openssl-${OPENSSL_VERSION}.tar.gz
     cd openssl-${OPENSSL_VERSION}
 
-    # Patch
-    for fname in ${OUR_DIR}/openssl-*.diff;
-    do
-        patch -p1 < $fname
-    done
-
     # Configure
-    CC='clang -flto -O3 -mmacosx-version-min=10.6' ./Configure no-shared darwin64-x86_64-cc enable-ec_nistp_64_gcc_128
+    CC='x86_64-apple-darwin12-clang -flto -O3 -mmacosx-version-min=10.6' \
+        ./Configure \
+        no-shared \
+        darwin64-x86_64-cc \
+        enable-ec_nistp_64_gcc_128
 
     # Build
-    make
+    make build_libs
     echo "** Finished building OpenSSL"
 }
 
 function build_socat() {
-    cd ${ROOT_DIR}
+    cd /build
 
     # Download
     curl -LO http://www.dest-unreach.org/socat/download/socat-${SOCAT_VERSION}.tar.gz
@@ -85,13 +97,22 @@ function build_socat() {
     cd socat-${SOCAT_VERSION}
 
     # Build
-    CC='clang -flto -O3 -mmacosx-version-min=10.6' \
-        CPPFLAGS="-I${ROOT_DIR} -I${ROOT_DIR}/openssl-1.0.2/include" \
-        LDFLAGS="-L${ROOT_DIR}/readline-${READLINE_VERSION} -L${ROOT_DIR}/ncurses-${NCURSES_VERSION}/lib -L${ROOT_DIR}/openssl-${OPENSSL_VERSION}" \
-        LIBS="${ROOT_DIR}/ncurses-${NCURSES_VERSION}/lib/libncurses.a" \
-        ./configure
+    AR=x86_64-apple-darwin12-ar \
+    CC='x86_64-apple-darwin12-clang -flto -O3 -mmacosx-version-min=10.6' \
+    CXX='x86_64-apple-darwin12-clang++ -flto -O3 -mmacosx-version-min=10.6' \
+    LD=x86_64-apple-darwin12-clang \
+    RANLIB=x86_64-apple-darwin12-ranlib \
+    CPPFLAGS="-I/build -I/build/openssl-${OPENSSL_VERSION}/include" \
+    LDFLAGS="-L/build/readline-${READLINE_VERSION} -L/build/ncurses-${NCURSES_VERSION}/lib -L/build/openssl-${OPENSSL_VERSION}" \
+    LIBS="/build/ncurses-${NCURSES_VERSION}/lib/libncurses.a" \
+        ./configure \
+        --disable-shared \
+        --enable-static \
+        --build=i686 \
+        --host=x86_64-apple-darwin
+
     make -j4
-    strip socat
+    x86_64-apple-darwin12-strip socat
 }
 
 function doit() {
@@ -101,8 +122,16 @@ function doit() {
     build_socat
 
     # Copy to output
-    cp ${ROOT_DIR}/socat-${SOCAT_VERSION}/socat $OUR_DIR/../../binaries/darwin
-    echo "** Finished **"
+    # Copy to output
+    if [ -d /output ]
+    then
+        OUT_DIR=/output/darwin
+        mkdir -p $OUT_DIR
+        cp /build/socat-${SOCAT_VERSION}/socat $OUT_DIR/
+        echo "** Finished **"
+    else
+        echo "** /output does not exist **"
+    fi
 }
 
 doit
