@@ -77,6 +77,8 @@ function build_openssl() {
     cd openssl-${OPENSSL_VERSION}
 
     # Configure
+    AR=x86_64-apple-darwin12-ar \
+    RANLIB=x86_64-apple-darwin12-ranlib \
     CC='x86_64-apple-darwin12-clang -flto -O3 -mmacosx-version-min=10.6' \
         ./Configure \
         no-shared \
@@ -106,8 +108,6 @@ function build_socat() {
     LDFLAGS="-L/build/readline-${READLINE_VERSION} -L/build/ncurses-${NCURSES_VERSION}/lib -L/build/openssl-${OPENSSL_VERSION}" \
     LIBS="/build/ncurses-${NCURSES_VERSION}/lib/libncurses.a" \
         ./configure \
-        --disable-shared \
-        --enable-static \
         --build=i686 \
         --host=x86_64-apple-darwin
 
