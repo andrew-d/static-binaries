@@ -29,6 +29,7 @@ function build_ncurses() {
     AR=x86_64-apple-darwin12-ar \
     CC='x86_64-apple-darwin12-clang -flto -O3 -mmacosx-version-min=10.6' \
     CXX='x86_64-apple-darwin12-clang++ -flto -O3 -mmacosx-version-min=10.6' \
+    CFLAGS='-frandom-seed=build-ncurses-darwin' \
     RANLIB=x86_64-apple-darwin12-ranlib \
         ./configure \
         --disable-shared \
@@ -54,6 +55,7 @@ function build_readline() {
     AR=x86_64-apple-darwin12-ar \
     CC='x86_64-apple-darwin12-clang -flto -O3 -mmacosx-version-min=10.6' \
     CXX='x86_64-apple-darwin12-clang++ -flto -O3 -mmacosx-version-min=10.6' \
+    CFLAGS='-frandom-seed=build-readline-darwin' \
     LD=x86_64-apple-darwin12-clang \
     RANLIB=x86_64-apple-darwin12-ranlib \
         ./configure \
@@ -79,6 +81,7 @@ function build_openssl() {
     # Configure
     AR=x86_64-apple-darwin12-ar \
     RANLIB=x86_64-apple-darwin12-ranlib \
+    CFLAGS='-frandom-seed=build-openssl-darwin' \
     CC='x86_64-apple-darwin12-clang -flto -O3 -mmacosx-version-min=10.6' \
         ./Configure \
         no-shared \
@@ -104,6 +107,7 @@ function build_socat() {
     CXX='x86_64-apple-darwin12-clang++ -flto -O3 -mmacosx-version-min=10.6' \
     LD=x86_64-apple-darwin12-clang \
     RANLIB=x86_64-apple-darwin12-ranlib \
+    CFLAGS='-frandom-seed=build-socat-darwin' \
     CPPFLAGS="-I/build -I/build/openssl-${OPENSSL_VERSION}/include" \
     LDFLAGS="-L/build/readline-${READLINE_VERSION} -L/build/ncurses-${NCURSES_VERSION}/lib -L/build/openssl-${OPENSSL_VERSION}" \
     LIBS="/build/ncurses-${NCURSES_VERSION}/lib/libncurses.a" \
