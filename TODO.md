@@ -23,3 +23,9 @@
   - When we call 'sbuild thing', we topologically sort all libraries that
     need to be built, build them all in order, and then run all the finish
     functions at the end
+
+- NOTE: The above is ... pretty much what Makefiles are designed for, despite
+  the fact that writing them isn't particularly pleasant.  While writing a new
+  thing would be fun, NIH syndrome is also a thing, and Make solves a lot of
+  these problems already.
+  Alternatively (to support, e.g. package installation): http://pydoit.org
