@@ -11,9 +11,18 @@ from .toposort import CycleException, topological_sort
 
 
 class BuildContext(object):
-    def __init__(self):
+    _DEFAULT_FLAGS = object()
+
+    def __init__(self, mods, platform, arch):
+        self.__modules = mods
+        self.__platform = platform
+        self.__arch = arch
         self.__build_dirs = {}
-        self.__flags = defaultdict(lambda: [])
+
+        # Mapping of package name --> flag name --> list of flags
+        self.__flags = defaultdict(lambda: defaultdict(lambda: []))
+
+        self._setup_flags()
 
     def build_dir_for(self, package):
         if package in self.__build_dirs:
@@ -24,12 +33,38 @@ class BuildContext(object):
         return d
 
     @property
-    def flags(self):
-        return make_immutable(self.__flags)
+    def platform(self):
+        return self.__platform
 
-    def add_flags(self, input):
-        for k, v in input.items():
-            self.__flags[k].extend(v)
+    @property
+    def arch(self):
+        return self.__arch
+
+    def set_flags(self, name, flags):
+        for fname, vals in flags.items():
+            self.__flags[name][fname].extend(vals)
+
+    def get_flags_for(self, name):
+        """Get all flags for the module with the given name"""
+        flags = defaultdict(lambda: [])
+        for depname in self.__modules[name]['dependencies']:
+            for fname, vals in self.__flags[depname].items():
+                flags[fname].extend(vals)
+
+        for fname, vals in self.__flags[self._DEFAULT_FLAGS].items():
+            flags[fname].extend(vals)
+
+        # Special case
+        flags['CFLAGS'].append('-frandom-seed=build-%s' % (name,))
+        flags['CXXFLAGS'].append('-frandom-seed=build-%s' % (name,))
+
+        return flags
+
+    def _setup_flags(self):
+        # Build everything static by default.
+        self.__flags[self._DEFAULT_FLAGS]['CFLAGS'].append('-static')
+
+        # TODO: set more per-platform and per-arch default flags in here.
 
     def cleanup(self):
         for dname in self.__build_dirs:
@@ -48,17 +83,19 @@ class PackageBuilder(object):
         mods = import_modules_in_dir(self.package_dir)
 
         # Build the dict of package name --> module.
-        self.packages = {}
+        self.packages = defaultdict(list)
         for mod in mods:
-            self.packages[mod.name] = normalize_module(mod)
+            self.packages[mod.name].append(normalize_module(mod))
 
-    def build(self, package):
-        build_order = self._get_build_order(package)
+    def build(self, name, platform, arch='x86_64'):
+        build_order = self._get_build_order(name, platform, arch)
 
-        # Get modules and run the builds.
-        ctx = BuildContext()
+        # Convert module names into descriptions.
+        mods = tuple(self._find_package(x, platform, arch) for x in build_order)
+
+        # Run the build.
+        ctx = BuildContext(mods, platform, arch)
         try:
-            mods = tuple(self.packages[x] for x in build_order)
             self._build_all(mods, ctx)
         finally:
             ctx.cleanup()
@@ -67,42 +104,55 @@ class PackageBuilder(object):
         # Collect and install all dev dependencies
         deps = []
         for mod in mods:
-            deps.extend(mod.dev_dependencies)
+            deps.extend(mod['dev_dependencies'])
 
-        # Install them.
+        # Install all dependencies - throws if there's a failure.
+        subprocess.check_call(['apt-get', 'update'])
         subprocess.check_call(['apt-get', 'install'] + deps)
 
-        # Fetch
+        # Fetch sources, prepare, and then build.
         for mod in mods:
-            mod.fetch(ctx)
+            mod['fetch'](ctx)
 
-        # Prepare
         for mod in mods:
-            mod.prepare(ctx)
+            if 'prepare' in mod:
+                mod['prepare'](ctx)
 
-        # Build
         for mod in mods:
-            # Build this module.
-            mod.build(ctx)
+            mod['build'](ctx)
+            ctx.add_flags(mod['name'], mod['flags'])
 
-            # Append the flags to the context's flags.
-            ctx.add_flags(mod.flags)
+        # Finish will handle any cleanup or copying the output.
+        for mod in mods:
+            if 'finish' in mod:
+                mod['finish'](ctx)
 
+    def _find_package(self, name, platform, arch):
+        candidates = self.packages.get(name)
+        if not candidates:
+            raise Exception("package '%s' not found" % (name,))
 
-    def _get_build_order(self, package):
+        for c in candidates:
+            if c['platform'] == platform and c['architecture'] == arch:
+                return c
+
+        raise Exception("no candidate found for package '%s' with " +
+                        "platform/arch: %s/%s" % (name, platform, arch))
+
+    def _get_build_order(self, name, platform, arch):
         # Find the module that exposes this package.
-        module = self.packages.get(package)
+        module = self._find_package(name, platform, arch)
         if not module:
-            raise Exception("package '%s' not found" % (package,))
+            raise Exception("package '%s' not found" % (name,))
 
         # Recursively collect dependency 'edges' - i.e. a tuple of (A, B) that
         # indicates that package A depends on package B.
-        edges = self._get_dependency_edges(package)
+        edges = self._get_dependency_edges(name, platform, arch)
 
         # Topologically sort all dependencies.
         return topological_sort(edges)
 
-    def _get_dependency_edges(self, package):
+    def _get_dependency_edges(self, name, platform, arch):
         edges = []
 
         def recurse(current, path):
@@ -111,12 +161,13 @@ class PackageBuilder(object):
                     path + [current]))
 
             # Add edges for all dependencies, then recurse to them.
-            for dep in self.packages[current]['dependencies']:
+            package = self._find_package(current, platform, arch)
+            for dep in package['dependencies']:
                 edges.append((dep, current))
                 recurse(dep, path + [current])
 
         try:
-            recurse(package, [])
+            recurse(name, [])
         except KeyError as e:
             raise Exception("dependency %r does not exist" % (e.args[0],))
 
