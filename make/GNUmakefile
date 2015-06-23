@@ -11,6 +11,7 @@ termcap  := $(src)/termcap
 zlib     := $(src)/zlib
 
 
+.PHONY: all
 all:
 	@echo "Cannot make all - please build a specific target"
 
@@ -32,3 +33,11 @@ include $(zlib)/GNUmakefile
 
 # Include program definitions
 include $(socat)/GNUmakefile
+
+# Final targets that contain all binaries / installs
+.PHONY: bin install
+install: socat.install
+	@echo "***** Install Finished *****"
+
+bin: socat.bin
+	@echo "***** Install Finished *****"
