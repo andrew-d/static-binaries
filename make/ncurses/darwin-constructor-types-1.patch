@@ -1,0 +1,40 @@
+--- a/c++/cursesf.h.orig	2011-07-23 10:05:34.000000000 +0200
++++ b/c++/cursesf.h	2011-07-23 10:06:20.000000000 +0200
+@@ -677,7 +677,7 @@
+   }
+ 
+ public:
+-  NCursesUserForm (NCursesFormField Fields[],
++  NCursesUserForm (NCursesFormField* Fields[],
+ 		   const T* p_UserData = STATIC_CAST(T*)(0),
+ 		   bool with_frame=FALSE,
+ 		   bool autoDelete_Fields=FALSE)
+@@ -686,7 +686,7 @@
+ 	set_user (const_cast<void *>(p_UserData));
+   };
+ 
+-  NCursesUserForm (NCursesFormField Fields[],
++  NCursesUserForm (NCursesFormField* Fields[],
+ 		   int nlines,
+ 		   int ncols,
+ 		   int begin_y = 0,
+--- a/c++/cursesm.h.orig	2011-07-23 10:05:50.000000000 +0200
++++ b/c++/cursesm.h	2011-07-23 10:06:46.000000000 +0200
+@@ -635,7 +635,7 @@
+   }
+ 
+ public:
+-  NCursesUserMenu (NCursesMenuItem Items[],
++  NCursesUserMenu (NCursesMenuItem* Items[],
+ 		   const T* p_UserData = STATIC_CAST(T*)(0),
+ 		   bool with_frame=FALSE,
+ 		   bool autoDelete_Items=FALSE)
+@@ -644,7 +644,7 @@
+ 	set_user (const_cast<void *>(p_UserData));
+   };
+ 
+-  NCursesUserMenu (NCursesMenuItem Items[],
++  NCursesUserMenu (NCursesMenuItem* Items[],
+ 		   int nlines,
+ 		   int ncols,
+ 		   int begin_y = 0,
