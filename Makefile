@@ -1,4 +1,5 @@
 Q       ?= @
+SHELL   := /bin/bash
 ROOT    := $(abspath .)
 OUT_DIR := $(ROOT)/binaries2
 
@@ -8,36 +9,17 @@ all:
 $(OUT_DIR):
 	$(Q)mkdir -p $@
 
-# TODO:
-#   1. Use $(eval) to reduce duplication
+# Helper rule to run a Docker image to perform a given build.
+define DOCKER_RUN
+.PHONY: $1-$2
+$1-$2: | $$(OUT_DIR)
+	$$(Q)./run-docker.sh $1 $2 $3 $$(OUT_DIR) @
+endef
 
-.PHONY: linux-amd64
-linux-amd64: | $(OUT_DIR)
-	$(Q)docker run \
-		--rm \
-		-v $(ROOT)/make:/make \
-		-v $(OUT_DIR):/output \
-		andrewd/musl-cross \
-		/bin/bash \
-			-c "cd /make && make PLATFORM=linux ARCH=amd64 Q=$(Q) install"
+$(eval $(call DOCKER_RUN,linux,amd64,andrewd/musl-cross))
+$(eval $(call DOCKER_RUN,android,arm,andrewd/musl-cross-arm))
+$(eval $(call DOCKER_RUN,darwin,amd64,andrewd/osxcross))
 
-.PHONY: android
-android: | $(OUT_DIR)
-	$(Q)docker run \
-		--rm \
-		-v $(ROOT)/make:/make \
-		-v $(OUT_DIR):/output \
-		andrewd/musl-cross-arm \
-		/bin/bash \
-			-c "cd /make && make PLATFORM=android Q=$(Q) install"
-
-
-.PHONY: darwin-amd64
-darwin-amd64: | $(OUT_DIR)
-	$(Q)docker run \
-		--rm \
-		-v $(ROOT)/make:/make \
-		-v $(OUT_DIR):/output \
-		andrewd/osxcross \
-		/bin/bash \
-			-c "cd /make && make PLATFORM=darwin ARCH=amd64 Q=$(Q) install"
+.PHONY: clean
+clean:
+	$(Q)$(RM) -r $(OUT_DIR)
