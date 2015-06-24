@@ -1,6 +1,7 @@
 include config.mk
 
 src  	 ?= $(abspath .)
+file     := $(src)/file
 lzma     := $(src)/lzma
 ncurses  := $(src)/ncurses
 openssl  := $(src)/openssl
@@ -32,12 +33,13 @@ include $(termcap)/GNUmakefile
 include $(zlib)/GNUmakefile
 
 # Include program definitions
+include $(file)/GNUmakefile
 include $(socat)/GNUmakefile
 
 # Final targets that contain all binaries / installs
 .PHONY: bin install
-install: socat.install
+install: file.install file.ext socat.install
 	@echo "***** Install Finished *****"
 
-bin: socat.bin
-	@echo "***** Install Finished *****"
+bin: file.bin socat.bin
+	@echo "***** Build Finished *****"
