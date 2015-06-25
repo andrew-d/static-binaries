@@ -5,7 +5,7 @@ SOCAT_DIR := $(BUILD_DIR)/socat-$(SOCAT_VERSION)
 
 .PHONY: socat.bin socat.install
 socat.bin: $(SOCAT_DIR)/socat
-socat.install: $(OUT_DIR)/socat
+socat.install: $(OUT_DIR)/socat-$(PLATFORM)-$(ARCH)
 
 ##################################################
 
@@ -35,7 +35,7 @@ $(BUILD_DIR)/socat-configure-stamp: $(BUILD_DIR)/socat-untar-stamp ncurses.lib r
 $(SOCAT_DIR)/socat: $(BUILD_DIR)/socat-configure-stamp
 	$(Q)$(MAKE) -C $(SOCAT_DIR)
 
-$(OUT_DIR)/socat: $(SOCAT_DIR)/socat $(OUT_DIR)
+$(OUT_DIR)/socat-$(PLATFORM)-$(ARCH): $(SOCAT_DIR)/socat | $(OUT_DIR)
 	$(Q)cp $< $@
 	$(Q)$(STRIP) $@
 

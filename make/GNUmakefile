@@ -22,6 +22,11 @@ $(BUILD_DIR):
 $(OUT_DIR):
 	$(Q)mkdir -p $@
 
+# TODO: We should consider doing something similar to what Android does and
+# having configuration-based building.  E.g. in the individual files, you can
+# `include $(BUILD_LIBRARY)` after setting up NAME, VERSION, CC,
+# CONFIGURE_FLAGS, etc., and the `include` will pull in the right rules.
+# We also need an `include $(RESET_VARS)`
 
 # Include libraries
 include $(lzma)/GNUmakefile

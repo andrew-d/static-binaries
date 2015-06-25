@@ -6,7 +6,7 @@ FILE_TEMP_DIR := $(BUILD_DIR)/file-$(FILE_VERSION)-temp
 
 .PHONY: file.bin file.install
 file.bin: $(FILE_DIR)/file
-file.install: $(OUT_DIR)/file
+file.install: $(OUT_DIR)/file-$(PLATFORM)-$(ARCH)
 file.ext: $(OUT_DIR)/magic.mgc
 
 FILE_STATIC_FLAG := $(STATIC_FLAG)
@@ -60,11 +60,11 @@ $(BUILD_DIR)/file-configure-stamp: $(FILE_TEMP_DIR)/file
 $(FILE_DIR)/src/file: $(BUILD_DIR)/file-configure-stamp $(FILE_TEMP_DIR)/file
 	$(Q)PATH=$(FILE_TEMP_DIR):$$PATH $(MAKE) -C $(FILE_DIR)
 
-$(OUT_DIR)/file: $(FILE_DIR)/src/file $(OUT_DIR)
+$(OUT_DIR)/file-$(PLATFORM)-$(ARCH): $(FILE_DIR)/src/file | $(OUT_DIR)
 	$(Q)cp $< $@
 	$(Q)$(STRIP) $@
 
-$(OUT_DIR)/magic.mgc: $(FILE_DIR)/magic/magic.mgc
+$(OUT_DIR)/magic.mgc: $(FILE_DIR)/magic/magic.mgc | $(OUT_DIR)
 	$(Q)cp $< $@
 
 .PHONY: file.clean
