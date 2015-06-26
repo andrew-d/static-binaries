@@ -69,7 +69,7 @@ CID=$(docker run \
 DESC=$(printf "%s/%s" "$PLATFORM" "$ARCH")
 HEADER=$(printf "  ${GREEN}%-10s${RESET} | ${BLUE}%-15s${RESET} | %s | " "DOCKER" "$DESC" "${CID:0:12}")
 
-printf "${HEADER}${YELLOW}WAIT${RESET}"
+printf "${HEADER}${YELLOW}WAITING${RESET}"
 
 EXIT_CODE=$(docker wait $CID)
 
