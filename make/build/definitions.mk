@@ -73,6 +73,16 @@ $(strip $(if $(strip $(1)),\
  ))
 endef
 
+###########################################################
+## Returns true if $(1) ends with $(2).  Returns the empty
+## string if they are not equal.
+###########################################################
+
+define strendswith
+$(strip $(shell [[ "$(1)" == *$(2) ]] && echo true))
+endef
+
+
 
 ###########################################################
 ## TODO: Command for running 'make' to build an output
