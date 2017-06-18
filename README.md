@@ -12,14 +12,15 @@ if you want a new tool or a tool on a new platform.
 - [binutils](https://www.gnu.org/software/binutils/)
 - [file](http://www.darwinsys.com/file/)
 - [ht](https://github.com/sebastianbiallas/ht)
-- [nmap](http://nmap.org/)
+- [nano](https://www.nano-editor.org)
+- [nmap](http://nmap.org)
 - [p0f v3](http://lcamtuf.coredump.cx/p0f3/)
 - [pv (Pipe Viewer)](https://www.ivarch.com/programs/pv.shtml)
 - [python](https://www.python.org)
 - [socat](http://www.dest-unreach.org/socat/)
 - [strace](http://linux.die.net/man/1/strace)
-- [tcpdump](http://www.tcpdump.org/)
-- [yasm](http://yasm.tortall.net/)
+- [tcpdump](http://www.tcpdump.org)
+- [yasm](http://yasm.tortall.net)
 
 ## Building
 
