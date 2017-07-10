@@ -4,38 +4,21 @@ set -e
 set -o pipefail
 set -x
 
-
-MUSL_VERSION=1.1.10
-SOCAT_VERSION=1.7.3.0
-NCURSES_VERSION=5.9
-READLINE_VERSION=6.3
-OPENSSL_VERSION=1.0.2e
-
-
-function build_musl() {
-    cd /build
-
-    # Download
-    curl -LO http://www.musl-libc.org/releases/musl-${MUSL_VERSION}.tar.gz
-    tar zxvf musl-${MUSL_VERSION}.tar.gz
-    cd musl-${MUSL_VERSION}
-
-    # Build
-    ./configure
-    make -j4
-    make install
-}
+SOCAT_VERSION=1.7.3.2
+NCURSES_VERSION=6.0
+READLINE_VERSION=7.0
+OPENSSL_VERSION=1.1.0f
 
 function build_ncurses() {
     cd /build
 
     # Download
-    curl -LO http://invisible-island.net/datafiles/release/ncurses.tar.gz
-    tar zxvf ncurses.tar.gz
+    curl -LO http://invisible-mirror.net/archives/ncurses/ncurses-${NCURSES_VERSION}.tar.gz
+    tar zxvf ncurses-${NCURSES_VERSION}.tar.gz
     cd ncurses-${NCURSES_VERSION}
 
     # Build
-    CC='/usr/local/musl/bin/musl-gcc -static' CFLAGS='-fPIC' ./configure \
+    CC='/usr/bin/gcc -static' CFLAGS='-fPIC' ./configure \
         --disable-shared \
         --enable-static
 }
@@ -49,7 +32,7 @@ function build_readline() {
     cd readline-${READLINE_VERSION}
 
     # Build
-    CC='/usr/local/musl/bin/musl-gcc -static' CFLAGS='-fPIC' ./configure \
+    CC='/usr/bin/gcc -static' CFLAGS='-fPIC' ./configure \
         --disable-shared \
         --enable-static
     make -j4
@@ -68,10 +51,10 @@ function build_openssl() {
     cd openssl-${OPENSSL_VERSION}
 
     # Configure
-    CC='/usr/local/musl/bin/musl-gcc -static' ./Configure no-shared linux-x86_64
+    CC='/usr/bin/gcc -static' ./Configure no-shared no-async linux-x86_64
 
     # Build
-    make
+    make -j4
     echo "** Finished building OpenSSL"
 }
 
@@ -86,9 +69,9 @@ function build_socat() {
     # Build
     # NOTE: `NETDB_INTERNAL` is non-POSIX, and thus not defined by MUSL.
     # We define it this way manually.
-    CC='/usr/local/musl/bin/musl-gcc -static' \
+    CC='/usr/bin/gcc -static' \
         CFLAGS='-fPIC' \
-        CPPFLAGS='-I/build -I/build/openssl-1.0.2/include -DNETDB_INTERNAL=-1' \
+        CPPFLAGS="-I/build -I/build/openssl-${OPENSSL_VERSION}/include -DNETDB_INTERNAL=-1" \
         LDFLAGS="-L/build/readline-${READLINE_VERSION} -L/build/ncurses-${NCURSES_VERSION}/lib -L/build/openssl-${OPENSSL_VERSION}" \
         ./configure
     make -j4
@@ -96,7 +79,6 @@ function build_socat() {
 }
 
 function doit() {
-    build_musl
     build_ncurses
     build_readline
     build_openssl
@@ -115,3 +97,4 @@ function doit() {
 }
 
 doit
+
