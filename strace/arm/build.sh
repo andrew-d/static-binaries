@@ -5,7 +5,7 @@ set -o pipefail
 set -x
 
 
-STRACE_VERSION=4.10
+STRACE_VERSION=4.21
 
 
 function build_strace() {
