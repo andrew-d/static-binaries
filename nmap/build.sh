@@ -5,8 +5,12 @@ set -o pipefail
 set -x
 
 
-NMAP_VERSION=6.49BETA1
-OPENSSL_VERSION=1.0.2c
+NMAP_VERSION=7.80
+OPENSSL_VERSION=1.1.0h
+
+# Install Python and zip
+DEBIAN_FRONTEND=noninteractive apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -yy python zip
 
 
 function build_openssl() {
@@ -18,7 +22,7 @@ function build_openssl() {
     cd openssl-${OPENSSL_VERSION}
 
     # Configure
-    CC='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-gcc -static' ./Configure no-shared linux-x86_64
+    CC='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-gcc -static' ./Configure no-shared no-async linux-x86_64
 
     # Build
     make
@@ -27,10 +31,6 @@ function build_openssl() {
 
 function build_nmap() {
     cd /build
-
-    # Install Python
-    DEBIAN_FRONTEND=noninteractive apt-get update
-    DEBIAN_FRONTEND=noninteractive apt-get install -yy python
 
     # Download
     curl -LO http://nmap.org/dist/nmap-${NMAP_VERSION}.tar.bz2
@@ -42,9 +42,11 @@ function build_nmap() {
         CXX='/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-g++ -static -static-libstdc++ -fPIC' \
         LD=/opt/cross/x86_64-linux-musl/bin/x86_64-linux-musl-ld \
         LDFLAGS="-L/build/openssl-${OPENSSL_VERSION}"   \
+        CPPFLAGS="-I/build/openssl-${OPENSSL_VERSION}/include" \
         ./configure \
             --without-ndiff \
             --without-zenmap \
+            --without-subversion \
             --without-nmap-update \
             --with-pcap=linux \
             --with-openssl=/build/openssl-${OPENSSL_VERSION}
@@ -68,7 +70,9 @@ function doit() {
         mkdir -p $OUT_DIR
         cp /build/nmap-${NMAP_VERSION}/nmap $OUT_DIR/
         cp /build/nmap-${NMAP_VERSION}/ncat/ncat $OUT_DIR/
-        cp /build/nmap-${NMAP_VERSION}/nping/nping $OUT_DIR/
+        cp /build/nmap-${NMAP_VERSION}/{nmap-os-db,nmap-payloads,nmap-rpc} $OUT_DIR/
+        cd $OUT_DIR/
+        zip nmap-static-${NMAP_VERSION}.zip {nmap-os-db,nmap-payloads,nmap-rpc}
         echo "** Finished **"
     else
         echo "** /output does not exist **"
