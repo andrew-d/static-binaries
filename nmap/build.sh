@@ -13,7 +13,7 @@ function build_openssl() {
     cd /build
 
     # Download
-    curl -LO https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz
+    curl -LO https://www.openssl.org/source/old/${OPENSSL_VERSION//[A-Za-z]}/openssl-${OPENSSL_VERSION}.tar.gz
     tar zxvf openssl-${OPENSSL_VERSION}.tar.gz
     cd openssl-${OPENSSL_VERSION}
 
