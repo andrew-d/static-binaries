@@ -1,13 +1,13 @@
-diff --git 1/strace-4.10-orig/defs.h 2/strace-4.10/defs.h
-index dad4fe8..d1378ab 100644
---- 1/strace-4.10-orig/defs.h
-+++ 2/strace-4.10/defs.h
-@@ -54,6 +54,8 @@
+diff --git 1/strace-4.21-orig/defs.h 2/strace-4.21/defs.h
+--- 1/strace-4.21-orig/defs.h
++++ 2/strace-4.21/defs.h
+@@ -53,6 +53,9 @@
  #include <time.h>
  #include <sys/time.h>
- #include <sys/syscall.h>
+ 
 +#include <asm-generic/ioctl.h>
 +#include <linux/stat.h>
- 
- #ifndef HAVE_STRERROR
- const char *strerror(int);
++
+ #include "arch_defs.h"
+ #include "error_prints.h"
+ #include "gcc_compat.h"
