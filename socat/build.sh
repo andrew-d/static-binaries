@@ -4,10 +4,10 @@ set -e
 set -o pipefail
 set -x
 
-SOCAT_VERSION=1.7.3.2
-NCURSES_VERSION=6.0
-READLINE_VERSION=7.0
-OPENSSL_VERSION=1.1.0f
+SOCAT_VERSION=1.7.4.1
+NCURSES_VERSION=6.2
+READLINE_VERSION=8.1
+OPENSSL_VERSION=1.1.1i
 
 function build_ncurses() {
     cd /build
