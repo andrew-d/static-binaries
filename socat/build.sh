@@ -21,6 +21,7 @@ function build_ncurses() {
     CC='/usr/bin/gcc -static' CFLAGS='-fPIC' ./configure \
         --disable-shared \
         --enable-static
+    make -j4
 }
 
 function build_readline() {
